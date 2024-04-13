@@ -78,6 +78,7 @@ class MentionTextEditingController extends TextEditingController {
     this.controllerToCopyTo,
     required this.mentionSyntaxes,
     this.onSugggestionChanged,
+    this.onMentionRemoved,
     required this.mentionBgColor,
     required this.mentionTextColor,
     required this.mentionTextStyle,
@@ -96,6 +97,9 @@ class MentionTextEditingController extends TextEditingController {
 
   // Function to get a mention from an id, used to deconstruct markup on construct
   final MentionObject? Function(BuildContext, String) idToMentionObject;
+
+  // Delegate called when mention is removed
+  final void Function(String)? onMentionRemoved;
 
   // Background color of the text for the mention
   final Color mentionBgColor;
@@ -445,7 +449,8 @@ class MentionTextEditingController extends TextEditingController {
         if (!bGuardDeletion) {
           if (difference.operation != DIFF_EQUAL) {
             if (rangeStart < mention.end && rangeEnd > mention.start) {
-              _cachedMentions.removeAt(x);
+              final removed = _cachedMentions.removeAt(x);
+              onMentionRemoved?.call(removed.id);
               continue;
             }
           }
